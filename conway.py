@@ -8,7 +8,6 @@ Created on Tue Jan 15 12:21:17 2019
 
 @author: shakes
 """
-from random import getstate
 import numpy as np
 from scipy import signal
 import rle
