@@ -8,6 +8,7 @@ Created on Tue Jan 15 12:21:17 2019
 
 @author: shakes
 """
+from random import getstate
 import numpy as np
 from scipy import signal
 import rle
@@ -47,10 +48,15 @@ class GameOfLife:
         '''
         #get weighted sum of neighbors
         #PART A & E CODE HERE
-        
+        neighborSum = 0
+
         #implement the GoL rules by thresholding the weights
         #PART A CODE HERE
-        
+        for row in range (-1, 254):
+            for column in range (-1, 254):
+                neighborSum = 0
+                
+
         #update the grid
 #        self.grid = #UNCOMMENT THIS WITH YOUR UPDATED GRID
     
