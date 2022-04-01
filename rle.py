@@ -71,7 +71,7 @@ class RunLengthEncodedParser:
         #~ assert len(pattern_rows) == size_y, \
         #~ "Number of data rows {0} does not match size y = {1}".format(len(pattern_rows), size_y)
         for y in range(len(pattern_rows)):
-            pattern.append([])
+            row = []
             tmp_num_str = ""
             for c in pattern_rows[y]:
                 if self.isdigit(c):
@@ -82,12 +82,19 @@ class RunLengthEncodedParser:
                     else:
                         num_cells = int(tmp_num_str)
                     for n in range(num_cells):
-                        pattern[y].append(c)
+                        row.append(c)
                     #reset count until another number is encountered
                     tmp_num_str = ""
             #fill in empty spaces at end of each row
-            for _ in range(len(pattern[y]), size_x):
-                pattern[y].append(default_cell)
+            for _ in range(len(row), size_x):
+                row.append(default_cell)
+            pattern.append(row)
+
+            # Check for end of line tag count and append newlines as required.
+            if tmp_num_str:
+                for _ in range(int(tmp_num_str) - 1):
+                    pattern.append([default_cell] * size_x)
+
         return pattern
 
     def isdigit(self, c):
