@@ -11,6 +11,7 @@ Created on Tue Jan 15 12:21:17 2019
 import numpy as np
 from scipy import signal
 import rle
+from scipy.ndimage import convolve
 
 class GameOfLife:
     '''
@@ -45,19 +46,74 @@ class GameOfLife:
         - Any live cell with more than three live neighbors dies, as if by overpopulation.
         - Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
         '''
+        
+        def helper(r,c):
+            neighborSum = 0
+            directions = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
+            for x,y in directions:
+                if 0 <= r + y< n and 0 <= c + x < n and self.grid[r+y][c+x] == 1:
+                    neighborSum += 1
+                    
+            if self.grid[r][c] == 1:
+                if neighborSum < 2:
+                    return 0
+                elif 2 <= neighborSum <= 3:
+                    return 1
+                else:
+                    return 0
+            else:
+                if neighborSum == 3:
+                    return 1
+                else:
+                    return 0
+       
+        
         #get weighted sum of neighbors
+        n = self.getGrid().shape[0]
+        tmp = np.zeros((n,n), np.int)
+        
+        if self.fastMode:
+         #evolving using convolution
+            '''kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]],int)
+            convolved_grid = convolve(self.grid, kernel, mode="wrap")
+            
+            print(convolved_grid)
+            next_board = (((self.grid == 1) & (convolved_grid > 1) & (convolved_grid < 4)) | ((self.grid == 0) (convolved_grid == 3))).astype(int)'''
+            kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]],int)
+            board = np.copy(self.grid)
+            
+            neighbor_sums = signal.convolve2d(self.grid, kernel, mode='same', boundary="wrap")
+
+            # If fewer than 2 neighbors, cell is dead.
+            board[neighbor_sums < 2] = 0
+            # If 2 neighbors, cell stays in its state.
+            # If 3 neighbors, cell becomes or stays active.
+            board[neighbor_sums == 3] = 1
+            # If >3 neighbors, cell dies
+            board[neighbor_sums > 3] = 0   
+            
+            self.grid = board
+        
         #PART A & E CODE HERE
-        neighborSum = 0
+       
+        
+        else:
+            # iterate 2D using the helper function
 
-        #implement the GoL rules by thresholding the weights
-        #PART A CODE HERE
-        for row in range (-1, 254):
-            for column in range (-1, 254):
-                neighborSum = 0
-                
+            for r in range(n):
+                for c in range(n):
+                    tmp[r][c] = helper(r,c)
+                   
+             
+            #implement the GoL rules by thresholding the weights
+            #PART A CODE HERE
+            for row in range (n):
+                for column in range (n):
+                    self.grid[row][column] = tmp[row][column]
 
-        #update the grid
-#        self.grid = #UNCOMMENT THIS WITH YOUR UPDATED GRID
+
+            #update the grid
+            #self.grid = tmp#UNCOMMENT THIS WITH YOUR UPDATED GRID
     
     def insertBlinker(self, index=(0,0)):
         '''
@@ -130,11 +186,57 @@ class GameOfLife:
         '''
         Assumes txtString contains the entire pattern as a human readable pattern without comments
         '''
+        file = open("glider.txt", 'r')
+        row = 0
+
+        for line in file:
+            text = line.split()
+            #print(str(text[0])[0])
+            column = 0
+            if str(text[0])[0] != "!":
+                #print(column)
+                #print(row)
+                #print(text)
+                for val in str(text[0]):
+                    #print(val)
+
+                    if val == ".":
+                        #print("yes")
+                        self.grid[row+pad][column+pad] = 0
+                    if val == "O" or val == "o":
+                        #print("no")
+                        self.grid[row+pad][column+pad] = 1
+                    column += 1
+                row += 1
+        
 
 
     def insertFromRLE(self, rleString, pad=0):
         '''
         Given string loaded from RLE file, populate the game grid
         '''
+        rle_parser = rle.RunLengthEncodedParser(rleString)
+        file =rle_parser.human_friendly_pattern.split("\n")
+        N = max(rle_parser.size_x,rle_parser.size_y)
+        self.grid = np.zeros((N,N), np.int)
+        
+        row = 0
+        #print(file)
+        for line in file[0:-1]:
+            #print((str(line)))
+            column = 0
+            for val in str(line):
+                #print(val)
+                #print(row, "col" ,column)
+                    #print(val)
+                if val == ".":
+                    #print("yes")
+                    self.grid[row][column] = 0
+                if val == "O" or val == "o":
+                    #print("no")
+                    self.grid[row][column] = 1
+                column += 1
+            row += 1
+        
 
         
