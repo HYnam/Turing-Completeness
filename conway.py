@@ -11,7 +11,6 @@ Created on Tue Jan 15 12:21:17 2019
 import numpy as np
 from scipy import signal
 import rle
-from scipy.ndimage import convolve
 
 class GameOfLife:
     '''
@@ -47,22 +46,22 @@ class GameOfLife:
         - Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
         '''
         
-        def helper(r,c):
+        def helper(r,c):    # r, c row and column
             neighborSum = 0
             directions = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
-            for x,y in directions:
-                if 0 <= r + y< n and 0 <= c + x < n and self.grid[r+y][c+x] == 1:
-                    neighborSum += 1
+            for x,y in directions:  # x, y coordinate
+                if 0 <= r + y < n and 0 <= c + x < n and self.grid[r+y][c+x] == 1:  
+                    neighborSum += 1    # Update neighbors counts
                     
-            if self.grid[r][c] == 1:
-                if neighborSum < 2:
+            if self.grid[r][c] == 1:    # Live cell
+                if neighborSum < 2: # Underpopulation
                     return 0
-                elif 2 <= neighborSum <= 3:
+                elif 2 <= neighborSum <= 3: 
                     return 1
                 else:
-                    return 0
-            else:
-                if neighborSum == 3:
+                    return 0    # Overpopulation
+            else:   # Dead cell 
+                if neighborSum == 3:    # Dead cell with 3 neighbors will alive
                     return 1
                 else:
                     return 0
@@ -74,15 +73,10 @@ class GameOfLife:
         
         if self.fastMode:
          #evolving using convolution
-            '''kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]],int)
-            convolved_grid = convolve(self.grid, kernel, mode="wrap")
-            
-            print(convolved_grid)
-            next_board = (((self.grid == 1) & (convolved_grid > 1) & (convolved_grid < 4)) | ((self.grid == 0) (convolved_grid == 3))).astype(int)'''
             kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]],int)
-            board = np.copy(self.grid)
+            board = np.copy(self.grid)  # copy, any change made have no affect on original
             
-            neighbor_sums = signal.convolve2d(self.grid, kernel, mode='same', boundary="wrap")
+            neighbor_sums = signal.convolve2d(self.grid, kernel, mode='same', boundary="wrap")  # 2D array showing neighbors
 
             # If fewer than 2 neighbors, cell is dead.
             board[neighbor_sums < 2] = 0
@@ -92,12 +86,12 @@ class GameOfLife:
             # If >3 neighbors, cell dies
             board[neighbor_sums > 3] = 0   
             
-            self.grid = board
+            self.grid = board   # Make changes to grid
         
         #PART A & E CODE HERE
        
         
-        else:
+        else:   # Not fastMode
             # iterate 2D using the helper function
 
             for r in range(n):
@@ -113,7 +107,7 @@ class GameOfLife:
 
 
             #update the grid
-            #self.grid = tmp#UNCOMMENT THIS WITH YOUR UPDATED GRID
+            self.grid = tmp #UNCOMMENT THIS WITH YOUR UPDATED GRID
     
     def insertBlinker(self, index=(0,0)):
         '''
