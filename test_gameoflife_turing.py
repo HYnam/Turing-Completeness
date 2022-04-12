@@ -11,7 +11,7 @@ import conway
 padding = 10
 
 #read RLE file
-#~ with open("gosperglidergun.rle", "r") as text_file:
+#~with open("gosperglidergun.rle", "r") as text_file:
 with open("turingmachine.rle", "r") as text_file:
         rleString = text_file.read()
 
