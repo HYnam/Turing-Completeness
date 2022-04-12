@@ -45,25 +45,30 @@ class GameOfLife:
         - Any live cell with more than three live neighbors dies, as if by overpopulation.
         - Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
         '''
-        
-        def helper(r,c):    # r, c row and column
-            neighborSum = 0
-            directions = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
-            for x,y in directions:  # x, y coordinate
-                if 0 <= r + y < n and 0 <= c + x < n and self.grid[r+y][c+x] == 1:  
-                    neighborSum += 1    # Update neighbors counts
+       #helper function to help check the rules for each individual cell(without convolve operator)  
+        def helper(r,c):
+            
+            neighborSum = 0 # number of neighbours a cell has 
+
+            directions = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]# coordinates representing all the possible directions that can surround a cell
+            for x,y in directions:
+                if 0 <= r + y< n and 0 <= c + x < n and self.grid[r+y][c+x] == 1: # making sure that a direction is valid(live cell is in corner) before checking it
+                    neighborSum += 1
                     
-            if self.grid[r][c] == 1:    # Live cell
-                if neighborSum < 2: # Underpopulation
+            # Depending on the number of alive neighbours we make sure that the GOL life rules are upheld
+
+
+            if self.grid[r][c] == 1:# if a live cell has fewer than two live neighbors it dies
+                if neighborSum < 2:
                     return 0
-                elif 2 <= neighborSum <= 3: 
+                elif 2 <= neighborSum <= 3:# if a live cell has two or 3 neighbors it lives on
                     return 1
-                else:
-                    return 0    # Overpopulation
-            else:   # Dead cell 
-                if neighborSum == 3:    # Dead cell with 3 neighbors will alive
+                else:                      # if a live cell has more than 3 neighbors it dies
+                    return 0
+            else:
+                if neighborSum == 3:  # if a cell is dead and has 3 live neighbours it becomes alive
                     return 1
-                else:
+                else:                # if a cell is dead and has fewer than 3 neighbours it remains dead
                     return 0
        
         
@@ -83,7 +88,7 @@ class GameOfLife:
             # If 2 neighbors, cell stays in its state.
             # If 3 neighbors, cell becomes or stays active.
             board[neighbor_sums == 3] = 1
-            # If >3 neighbors, cell dies
+            # If >3 neighbors, cell die
             board[neighbor_sums > 3] = 0   
             
             self.grid = board   # Make changes to grid
@@ -150,14 +155,14 @@ class GameOfLife:
         self.grid[index[0]+4, index[1]+35] = self.aliveValue
         self.grid[index[0]+4, index[1]+36] = self.aliveValue
         
-        self.grid[index[0]+5, index[1]+1] = self.aliveValue
+       # self.grid[index[0]+5, index[1]+1] = self.aliveValue
         self.grid[index[0]+5, index[1]+2] = self.aliveValue
         self.grid[index[0]+5, index[1]+11] = self.aliveValue
         self.grid[index[0]+5, index[1]+17] = self.aliveValue
         self.grid[index[0]+5, index[1]+21] = self.aliveValue
         self.grid[index[0]+5, index[1]+22] = self.aliveValue
         
-        self.grid[index[0]+6, index[1]+1] = self.aliveValue
+        #self.grid[index[0]+6, index[1]+1] = self.aliveValue
         self.grid[index[0]+6, index[1]+2] = self.aliveValue
         self.grid[index[0]+6, index[1]+11] = self.aliveValue
         self.grid[index[0]+6, index[1]+15] = self.aliveValue
@@ -180,25 +185,16 @@ class GameOfLife:
         '''
         Assumes txtString contains the entire pattern as a human readable pattern without comments
         '''
-        file = open("glider.txt", 'r')
         row = 0
 
-        for line in file:
+        for line in txtString:
             text = line.split()
-            #print(str(text[0])[0])
             column = 0
             if str(text[0])[0] != "!":
-                #print(column)
-                #print(row)
-                #print(text)
                 for val in str(text[0]):
-                    #print(val)
-
                     if val == ".":
-                        #print("yes")
                         self.grid[row+pad][column+pad] = 0
                     if val == "O" or val == "o":
-                        #print("no")
                         self.grid[row+pad][column+pad] = 1
                     column += 1
                 row += 1
@@ -211,26 +207,17 @@ class GameOfLife:
         '''
         rle_parser = rle.RunLengthEncodedParser(rleString)
         file =rle_parser.human_friendly_pattern.split("\n")
-        N = max(rle_parser.size_x,rle_parser.size_y)
+        N = max(rle_parser.size_x,rle_parser.size_y)    # Largest size of parser returned
         self.grid = np.zeros((N,N), np.int)
         
         row = 0
-        #print(file)
+
         for line in file[0:-1]:
-            #print((str(line)))
             column = 0
             for val in str(line):
-                #print(val)
-                #print(row, "col" ,column)
-                    #print(val)
                 if val == ".":
-                    #print("yes")
                     self.grid[row][column] = 0
                 if val == "O" or val == "o":
-                    #print("no")
                     self.grid[row][column] = 1
                 column += 1
             row += 1
-        
-
-        
