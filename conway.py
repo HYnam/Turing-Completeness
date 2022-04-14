@@ -155,7 +155,7 @@ class GameOfLife:
         self.grid[index[0]+4, index[1]+35] = self.aliveValue
         self.grid[index[0]+4, index[1]+36] = self.aliveValue
         
-       # self.grid[index[0]+5, index[1]+1] = self.aliveValue
+        #self.grid[index[0]+5, index[1]+1] = self.aliveValue
         self.grid[index[0]+5, index[1]+2] = self.aliveValue
         self.grid[index[0]+5, index[1]+11] = self.aliveValue
         self.grid[index[0]+5, index[1]+17] = self.aliveValue
@@ -193,9 +193,9 @@ class GameOfLife:
             if str(text[0])[0] != "!":
                 for val in str(text[0]):
                     if val == ".":
-                        self.grid[row+pad][column+pad] = 0
+                        self.grid[row+pad][column+pad] = 0  # cell is dead 
                     if val == "O" or val == "o":
-                        self.grid[row+pad][column+pad] = 1
+                        self.grid[row+pad][column+pad] = 1  # cell is alive
                     column += 1
                 row += 1
         
@@ -216,8 +216,8 @@ class GameOfLife:
             column = 0
             for val in str(line):
                 if val == ".":
-                    self.grid[row][column] = 0
+                    self.grid[row][column] = 0  # cell is dead 
                 if val == "O" or val == "o":
-                    self.grid[row][column] = 1
+                    self.grid[row][column] = 1  # cell is alive 
                 column += 1
             row += 1
